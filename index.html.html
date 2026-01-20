@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>昭明國小 VIP點餐系統</title>
+    <script type="importmap">
+    {
+        "imports": {
+            "firebase/app": "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",
+            "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
+        }
+    }
+    </script>
+    <style>
+        :root {
+            --primary: #4ecdc4; /* 薄荷綠 */
+            --secondary: #ff9f43; /* 暖陽橘 */
+            --bg: #f7f9fc;
+            --text: #2c3e50;
+        }
+        body { font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; background-color: var(--bg); margin: 0; padding: 15px; color: var(--text); }
+        h1 { text-align: center; color: var(--text); text-shadow: 1px 1px 2px rgba(0,0,0,0.1); margin-bottom: 5px; }
+        .school-title { text-align: center; font-size: 1.2rem; color: #777; margin-bottom: 20px; letter-spacing: 2px; }
+        .container { width: 100%; max-width: 1100px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 0 auto; }
+        @media (max-width: 850px) { .container { grid-template-columns: 1fr; } }
+        
+        /* 卡片設計 */
+        .card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #eee; position: relative; overflow: hidden; }
+        .card::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: var(--primary); }
+        .card.order-summary::before { background: var(--secondary); }
+        
+        h2 { font-size: 1.4rem; margin-top: 0; display: flex; align-items: center; gap: 8px; }
+        label { display: block; margin: 15px 0 5px; font-weight: 600; color: #555; font-size: 0.95rem; }
+        
+        select, input { width: 100%; padding: 12px; border: 2px solid #edf2f7; border-radius: 12px; font-size: 16px; transition: all 0.3s; box-sizing: border-box; }
+        select:focus, input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.2); }
+        
+        .btn-add { background: var(--primary); color: white; border: none; width: 100%; padding: 16px; border-radius: 12px; font-size: 1.1rem; cursor: pointer; font-weight: bold; margin-top: 25px; transition: transform 0.2s; }
+        .btn-add:active { transform: scale(0.98); }
+        
+        /* 訂單清單項 */
+        .order-item { background: #fafafa; border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--secondary); }
+        .order-info b { font-size: 1.1rem; color: var(--primary); }
+        .order-info small { color: #888; display: block; margin-top: 3px; }
+        
+        .delete-btn { background: #ffeded; color: #ff5e5e; border: 1px solid #ff5e5e; border-radius: 8px; padding: 6px 12px; cursor: pointer; transition: 0.3s; }
+        .delete-btn:hover { background: #ff5e5e; color: white; }
+        
+        .summary-box { background: #fff9f2; padding: 15px; border-radius: 12px; border: 1px dashed var(--secondary); margin: 20px 0; font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap; color: #666; }
+        .status-dot { width: 10px; height: 10px; background: #2ecc71; border-radius: 50%; display: inline-block; margin-right: 5px; }
+    </style>
+</head>
+<body>
+
+<h1>🏫 昭明國小-VIP點餐系統</h1>
+<div class="school-title">Zhaoming Elementary School - VIP Ordering</div>
+<div style="text-align: center; font-size: 12px; color: #999; margin-bottom: 20px;">
+    <span class="status-dot"></span><span id="status">正在同步雲端資料... Syncing...</span>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h2>✏️ 填寫點單 Order Form</h2>
+        <label>點餐人姓名 Name</label>
+        <input type="text" id="name" placeholder="請輸入姓名">
+
+        <label>飲品系列 Series</label>
+        <select id="category" onchange="updateDrinks()">
+            <option value="">-- 請選擇系列 Select Series --</option>
+            <option value="recommend">⭐ 店長推薦 Top Picks</option>
+            <option value="tea">🍃 找好茶 Classic Tea</option>
+            <option value="milkTea">🧋 找奶茶 Milk Tea</option>
+            <option value="fresh">🍋 找新鮮 Juice & Fruit</option>
+            <option value="latte">🥛 找拿鐵 Tea Latte</option>
+            <option value="iceCream">🍦 找冰淇淋 Ice Cream</option>
+        </select>
+
+        <label>飲品名稱 Drink</label>
+        <select id="drinkSelect"><option value="">請先選擇系列 Select Series First</option></select>
+
+        <div style="display: flex; gap: 10px;">
+            <div style="flex: 1;">
+                <label>甜度 Sugar Level</label>
+                <select id="sugar">
+                    <option>無糖 0% Sugar</option><option>微糖 30% Sugar</option><option>半糖 50% Sugar</option><option>少糖 70% Sugar</option><option>正常糖 100% Sugar</option>
+                </select>
+            </div>
+            <div style="flex: 1;">
+                <label>冰塊 Ice Level</label>
+                <select id="ice">
+                    <option>去冰 No Ice</option><option>微冰 Low Ice</option><option>少冰 Less Ice</option><option>正常冰 Normal Ice</option><option>常溫 Room Temp</option><option>熱 Hot</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="btn-add" id="submitBtn">送出訂單 Submit Order</button>
+    </div>
+
+    <div class="card order-summary">
+        <h2>📋 訂單總覽 Order Summary <span id="count" style="font-size: 14px; color: var(--secondary); margin-left: 10px;">(0杯)</span></h2>
+        <div id="orderList" style="max-height: 300px; overflow-y: auto; margin-bottom: 10px; padding-right: 5px;"></div>
+        
+        <div class="summary-box" id="summaryOutput">目前尚無點餐資料 No orders yet.</div>
+        
+        <button style="width:100%; padding:12px; background: var(--secondary); color:white; border:none; border-radius:10px; cursor:pointer; font-weight:bold;" onclick="copySummary()">複製統計文字 Copy for LINE</button>
+        <h3 style="text-align: right; color: var(--text); margin-top: 15px;">總金額 Total: <span style="color:var(--secondary); font-size: 1.6rem;">$<span id="totalPrice">0</span></span></h3>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "firebase/app";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc } from "firebase/firestore";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC5hY6aKGzpwD4Cp8fafE4hUwvC7KEvWFc",
+      authDomain: "drin-296d7.firebaseapp.com",
+      projectId: "drin-296d7",
+      storageBucket: "drin-296d7.firebasestorage.app",
+      messagingSenderId: "138452108599",
+      appId: "1:138452108599:web:aa9089dba15317e8cd46b2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const ordersRef = collection(db, "orders_list");
+
+    const menu = {
+        recommend: [
+            {n:"麵茶紅茶拿鐵 Flour Tea Black Tea Latte", p:75}, 
+            {n:"四季春珍波椰 4 Seasons Tea w/Pearls & Jelly", p:45}, 
+            {n:"芒果青 Mango Green Tea", p:55}, 
+            {n:"荔枝烏龍 Lychee Oolong Tea", p:55}, 
+            {n:"重焙烏龍拿鐵 Roasted Oolong Latte", p:65}
+        ],
+        tea: [
+            {n:"茉莉綠茶 Jasmine Green Tea", p:30}, 
+            {n:"阿薩姆紅茶 Assam Black Tea", p:30}, 
+            {n:"四季春青茶 4 Seasons Tea", p:30}, 
+            {n:"黃金烏龍 Golden Oolong Tea", p:30}, 
+            {n:"檸檬綠茶 Lemon Green Tea", p:55}, 
+            {n:"鮮柚綠 Grapefruit Green Tea", p:65}
+        ],
+        milkTea: [
+            {n:"奶綠 Green Milk Tea", p:55}, 
+            {n:"奶茶 Milk Tea", p:55}, 
+            {n:"波霸奶茶 Bubble Milk Tea", p:55}, 
+            {n:"麵茶奶茶 Flour Milk Tea", p:65}
+        ],
+        fresh: [
+            {n:"檸檬汁 Lemon Juice", p:65}, 
+            {n:"金桔檸檬 Kumquat Lemon", p:65}, 
+            {n:"檸檬多多 Lemon Yakult", p:75}, 
+            {n:"8冰茶 No.8 Iced Tea", p:55}
+        ],
+        latte: [
+            {n:"紅茶拿鐵 Black Tea Latte", p:65}, 
+            {n:"波霸紅茶拿鐵 Bubble Black Tea Latte", p:65}, 
+            {n:"燕麥鮮奶 Oatmeal Fresh Milk", p:75}
+        ],
+        iceCream: [
+            {n:"冰淇淋綠茶 Ice Cream Green Tea", p:55}, 
+            {n:"冰淇淋奶茶 Ice Cream Milk Tea", p:65}, 
+            {n:"冰淇淋鮮奶 Ice Cream Fresh Milk", p:85}
+        ]
+    };
+
+    window.updateDrinks = () => {
+        const cat = document.getElementById('category').value;
+        const drinkSelect = document.getElementById('drinkSelect');
+        drinkSelect.innerHTML = '<option value="">-- 請選擇飲品 Select Drink --</option>';
+        if (cat && menu[cat]) {
+            menu[cat].forEach(item => {
+                let opt = document.createElement('option');
+                opt.value = item.p;
+                opt.textContent = `${item.n} ($${item.p})`;
+                drinkSelect.appendChild(opt);
+            });
+        }
+    };
+
+    window.deleteItem = async (id, name) => {
+        if (confirm(`確定要刪除 ${name} 的訂單嗎？ Delete this order?`)) {
+            await deleteDoc(doc(db, "orders_list", id));
+        }
+    };
+
+    document.getElementById('submitBtn').onclick = async () => {
+        const name = document.getElementById('name').value;
+        const drinkNode = document.getElementById('drinkSelect');
+        if (!name || drinkNode.value === "") return alert("請輸入姓名並選擇飲品！ Please enter name and select drink!");
+        
+        await addDoc(ordersRef, {
+            name: name,
+            drink: drinkNode.options[drinkNode.selectedIndex].text.split(' ($')[0],
+            spec: `${document.getElementById('sugar').value} / ${document.getElementById('ice').value}`,
+            price: parseInt(drinkNode.value),
+            createdAt: new Date()
+        });
+        document.getElementById('name').value = "";
+    };
+
+    onSnapshot(query(ordersRef, orderBy("createdAt", "asc")), (snap) => {
+        document.getElementById('status').innerText = "🟢 已同步雲端 Connected & Synced";
+        const listDiv = document.getElementById('orderList');
+        listDiv.innerHTML = '';
+        let total = 0, count = 0, txt = "【昭明國小 VIP 訂單統計】\n";
+        
+        snap.forEach(doc => {
+            const o = doc.data();
+            const id = doc.id;
+            total += o.price; count++;
+            listDiv.innerHTML += `
+                <div class="order-item">
+                    <div class="order-info"><b>${o.name}</b><small>${o.drink}</small><small>${o.spec}</small></div>
+                    <div style="text-align:right">
+                        <div style="font-weight:bold; color:var(--secondary)">$${o.price}</div>
+                        <button class="delete-btn" onclick="deleteItem('${id}', '${o.name}')">刪除 Delete</button>
+                    </div>
+                </div>`;
+            txt += `${count}. ${o.name}: ${o.drink} (${o.spec}) - $${o.price}\n`;
+        });
+        document.getElementById('totalPrice').innerText = total;
+        document.getElementById('count').innerText = `(${count}杯 Cups)`;
+        document.getElementById('summaryOutput').innerText = count > 0 ? txt + `\n總計 Total: ${count}杯 / $${total}` : "目前無訂單資料 No orders.";
+    });
+
+    window.copySummary = () => {
+        navigator.clipboard.writeText(document.getElementById('summaryOutput').innerText);
+        alert("已複製統計文字至剪貼簿！ Copied to clipboard!");
+    };
+</script>
+</body>
+</html>

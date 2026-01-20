@@ -16,38 +16,61 @@
         :root {
             --primary: #4ecdc4; /* 薄荷綠 */
             --secondary: #ff9f43; /* 暖陽橘 */
+            --accent: #6c5ce7; /* 統計紫 */
             --bg: #f7f9fc;
             --text: #2c3e50;
         }
         body { font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; background-color: var(--bg); margin: 0; padding: 15px; color: var(--text); }
-        h1 { text-align: center; color: var(--text); text-shadow: 1px 1px 2px rgba(0,0,0,0.1); margin-bottom: 5px; }
-        .school-title { text-align: center; font-size: 1.2rem; color: #777; margin-bottom: 20px; letter-spacing: 2px; }
-        .container { width: 100%; max-width: 1100px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 0 auto; }
-        @media (max-width: 850px) { .container { grid-template-columns: 1fr; } }
+        h1 { text-align: center; color: var(--text); margin-bottom: 5px; }
+        .school-title { text-align: center; font-size: 1.1rem; color: #777; margin-bottom: 20px; letter-spacing: 1px; }
         
-        /* 卡片設計 */
-        .card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #eee; position: relative; overflow: hidden; }
+        /* 佈局設計：三欄 */
+        .container { 
+            width: 100%; 
+            max-width: 1250px; 
+            display: grid; 
+            grid-template-columns: 1fr 1fr 1fr; 
+            gap: 15px; 
+            margin: 0 auto; 
+        }
+        
+        @media (max-width: 1150px) {
+            .container { grid-template-columns: 1fr; }
+        }
+        
+        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #eee; position: relative; overflow: hidden; display: flex; flex-direction: column; }
         .card::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: var(--primary); }
         .card.order-summary::before { background: var(--secondary); }
+        .card.agg-summary::before { background: var(--accent); }
         
-        h2 { font-size: 1.4rem; margin-top: 0; display: flex; align-items: center; gap: 8px; }
-        label { display: block; margin: 15px 0 5px; font-weight: 600; color: #555; font-size: 0.95rem; }
+        h2 { font-size: 1.25rem; margin-top: 0; display: flex; align-items: center; gap: 8px; color: #444; }
+        label { display: block; margin: 12px 0 5px; font-weight: 600; color: #555; font-size: 0.9rem; }
         
-        select, input { width: 100%; padding: 12px; border: 2px solid #edf2f7; border-radius: 12px; font-size: 16px; transition: all 0.3s; box-sizing: border-box; }
-        select:focus, input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.2); }
+        select, input { width: 100%; padding: 12px; border: 2px solid #edf2f7; border-radius: 12px; font-size: 15px; transition: all 0.3s; box-sizing: border-box; }
+        select:focus, input:focus { border-color: var(--primary); outline: none; }
         
-        .btn-add { background: var(--primary); color: white; border: none; width: 100%; padding: 16px; border-radius: 12px; font-size: 1.1rem; cursor: pointer; font-weight: bold; margin-top: 25px; transition: transform 0.2s; }
-        .btn-add:active { transform: scale(0.98); }
+        .btn-add { background: var(--primary); color: white; border: none; width: 100%; padding: 15px; border-radius: 12px; font-size: 1.1rem; cursor: pointer; font-weight: bold; margin-top: 20px; transition: 0.2s; }
+        .btn-add:hover { opacity: 0.9; transform: translateY(-2px); }
         
-        /* 訂單清單項 */
-        .order-item { background: #fafafa; border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--secondary); }
-        .order-info b { font-size: 1.1rem; color: var(--primary); }
-        .order-info small { color: #888; display: block; margin-top: 3px; }
+        /* 清單列表樣式 */
+        .list-container { flex-grow: 1; overflow-y: auto; max-height: 500px; padding-right: 5px; margin-top: 10px; }
         
-        .delete-btn { background: #ffeded; color: #ff5e5e; border: 1px solid #ff5e5e; border-radius: 8px; padding: 6px 12px; cursor: pointer; transition: 0.3s; }
+        /* 個人明細項目 */
+        .order-item { background: #fafafa; border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--secondary); font-size: 0.9rem; }
+        .order-info b { color: var(--text); font-size: 1rem; }
+        .order-info small { color: #888; display: block; margin-top: 2px; line-height: 1.3; }
+        
+        /* 匯總項目 */
+        .agg-item { background: #f8f7ff; border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--accent); border-bottom: 1px solid #eee; }
+        .agg-name { font-size: 0.9rem; font-weight: 500; color: #444; flex: 1; padding-right: 10px; }
+        .agg-count { background: var(--accent); color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; min-width: 40px; text-align: center; }
+        
+        .delete-btn { background: #fff5f5; color: #ff5e5e; border: 1px solid #ff5e5e; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 0.8rem; }
         .delete-btn:hover { background: #ff5e5e; color: white; }
         
-        .summary-box { background: #fff9f2; padding: 15px; border-radius: 12px; border: 1px dashed var(--secondary); margin: 20px 0; font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap; color: #666; }
+        .summary-box { background: #fffcf8; padding: 15px; border-radius: 12px; border: 1px dashed var(--secondary); margin: 15px 0; font-size: 0.85rem; white-space: pre-wrap; color: #666; }
+        
+        .footer-total { margin-top: auto; padding-top: 15px; border-top: 1px solid #eee; text-align: right; }
         .status-dot { width: 10px; height: 10px; background: #2ecc71; border-radius: 50%; display: inline-block; margin-right: 5px; }
     </style>
 </head>
@@ -55,13 +78,13 @@
 
 <h1>🏫 昭明國小-VIP點餐系統</h1>
 <div class="school-title">Zhaoming Elementary School - VIP Ordering</div>
-<div style="text-align: center; font-size: 12px; color: #999; margin-bottom: 20px;">
-    <span class="status-dot"></span><span id="status">正在同步雲端資料... Syncing...</span>
+<div style="text-align: center; font-size: 12px; color: #999; margin-bottom: 15px;">
+    <span class="status-dot"></span><span id="status">正在同步雲端... Syncing...</span>
 </div>
 
 <div class="container">
     <div class="card">
-        <h2>✏️ 填寫點單 Order Form</h2>
+        <h2>✏️ 填寫 Order Form</h2>
         <label>點餐人姓名 Name</label>
         <input type="text" id="name" placeholder="請輸入姓名">
 
@@ -81,13 +104,13 @@
 
         <div style="display: flex; gap: 10px;">
             <div style="flex: 1;">
-                <label>甜度 Sugar Level</label>
+                <label>甜度 Sugar</label>
                 <select id="sugar">
                     <option>無糖 0% Sugar</option><option>微糖 30% Sugar</option><option>半糖 50% Sugar</option><option>少糖 70% Sugar</option><option>正常糖 100% Sugar</option>
                 </select>
             </div>
             <div style="flex: 1;">
-                <label>冰塊 Ice Level</label>
+                <label>冰塊 Ice</label>
                 <select id="ice">
                     <option>去冰 No Ice</option><option>微冰 Low Ice</option><option>少冰 Less Ice</option><option>正常冰 Normal Ice</option><option>常溫 Room Temp</option><option>熱 Hot</option>
                 </select>
@@ -98,13 +121,22 @@
     </div>
 
     <div class="card order-summary">
-        <h2>📋 訂單總覽 Order Summary <span id="count" style="font-size: 14px; color: var(--secondary); margin-left: 10px;">(0杯)</span></h2>
-        <div id="orderList" style="max-height: 300px; overflow-y: auto; margin-bottom: 10px; padding-right: 5px;"></div>
+        <h2>📋 個人明細 Details <span id="count" style="font-size: 14px; color: var(--secondary); margin-left: 8px;">(0杯)</span></h2>
+        <div class="list-container" id="orderList"></div>
         
-        <div class="summary-box" id="summaryOutput">目前尚無點餐資料 No orders yet.</div>
+        <div class="summary-box" id="summaryOutput">目前尚無點餐資料 No orders.</div>
+        <button style="width:100%; padding:12px; background: var(--secondary); color:white; border:none; border-radius:10px; cursor:pointer; font-weight:bold;" onclick="copySummary()">複製 LINE 統計 Copy</button>
+    </div>
+
+    <div class="card agg-summary">
+        <h2>📊 品項匯總 Summary</h2>
+        <div class="list-container" id="aggList">
+            <p style="color: #999; font-size: 0.9rem; text-align: center; margin-top: 20px;">等待訂單匯總中...</p>
+        </div>
         
-        <button style="width:100%; padding:12px; background: var(--secondary); color:white; border:none; border-radius:10px; cursor:pointer; font-weight:bold;" onclick="copySummary()">複製統計文字 Copy for LINE</button>
-        <h3 style="text-align: right; color: var(--text); margin-top: 15px;">總金額 Total: <span style="color:var(--secondary); font-size: 1.6rem;">$<span id="totalPrice">0</span></span></h3>
+        <div class="footer-total">
+            <h3 style="margin: 0; color: #444;">總金額 Total: <span style="color:var(--accent); font-size: 1.6rem;">$<span id="totalPrice">0</span></span></h3>
+        </div>
     </div>
 </div>
 
@@ -112,6 +144,7 @@
     import { initializeApp } from "firebase/app";
     import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc } from "firebase/firestore";
 
+    // 沿用你的 Firebase 配置
     const firebaseConfig = {
       apiKey: "AIzaSyC5hY6aKGzpwD4Cp8fafE4hUwvC7KEvWFc",
       authDomain: "drin-296d7.firebaseapp.com",
@@ -128,7 +161,7 @@
     const menu = {
         recommend: [
             {n:"麵茶紅茶拿鐵 Flour Tea Black Tea Latte", p:75}, 
-            {n:"四季春珍波椰 4 Seasons Tea w/Pearls & Jelly", p:45}, 
+            {n:"四季春珍波椰 4 Seasons Tea w/Pearls", p:45}, 
             {n:"芒果青 Mango Green Tea", p:55}, 
             {n:"荔枝烏龍 Lychee Oolong Tea", p:55}, 
             {n:"重焙烏龍拿鐵 Roasted Oolong Latte", p:65}
@@ -168,7 +201,7 @@
     window.updateDrinks = () => {
         const cat = document.getElementById('category').value;
         const drinkSelect = document.getElementById('drinkSelect');
-        drinkSelect.innerHTML = '<option value="">-- 請選擇飲品 Select Drink --</option>';
+        drinkSelect.innerHTML = '<option value="">-- 請選擇飲品 --</option>';
         if (cat && menu[cat]) {
             menu[cat].forEach(item => {
                 let opt = document.createElement('option');
@@ -180,7 +213,7 @@
     };
 
     window.deleteItem = async (id, name) => {
-        if (confirm(`確定要刪除 ${name} 的訂單嗎？ Delete this order?`)) {
+        if (confirm(`確定要刪除 ${name} 的訂單嗎？`)) {
             await deleteDoc(doc(db, "orders_list", id));
         }
     };
@@ -188,7 +221,7 @@
     document.getElementById('submitBtn').onclick = async () => {
         const name = document.getElementById('name').value;
         const drinkNode = document.getElementById('drinkSelect');
-        if (!name || drinkNode.value === "") return alert("請輸入姓名並選擇飲品！ Please enter name and select drink!");
+        if (!name || drinkNode.value === "") return alert("請輸入姓名與飲品！");
         
         await addDoc(ordersRef, {
             name: name,
@@ -201,33 +234,57 @@
     };
 
     onSnapshot(query(ordersRef, orderBy("createdAt", "asc")), (snap) => {
-        document.getElementById('status').innerText = "🟢 已同步雲端 Connected & Synced";
+        document.getElementById('status').innerText = "🟢 雲端同步中 Connected";
         const listDiv = document.getElementById('orderList');
+        const aggDiv = document.getElementById('aggList');
         listDiv.innerHTML = '';
-        let total = 0, count = 0, txt = "【昭明國小 VIP 訂單統計】\n";
+        aggDiv.innerHTML = '';
         
-        snap.forEach(doc => {
-            const o = doc.data();
-            const id = doc.id;
+        let total = 0, count = 0, txt = "【昭明國小 VIP 訂單統計】\n";
+        let aggregation = {}; 
+
+        snap.forEach(docSnap => {
+            const o = docSnap.data();
+            const id = docSnap.id;
             total += o.price; count++;
+            
+            // 渲染明細
             listDiv.innerHTML += `
                 <div class="order-item">
                     <div class="order-info"><b>${o.name}</b><small>${o.drink}</small><small>${o.spec}</small></div>
                     <div style="text-align:right">
-                        <div style="font-weight:bold; color:var(--secondary)">$${o.price}</div>
-                        <button class="delete-btn" onclick="deleteItem('${id}', '${o.name}')">刪除 Delete</button>
+                        <div style="font-weight:bold; color:var(--secondary); margin-bottom:5px;">$${o.price}</div>
+                        <button class="delete-btn" onclick="deleteItem('${id}', '${o.name}')">刪除</button>
                     </div>
                 </div>`;
-            txt += `${count}. ${o.name}: ${o.drink} (${o.spec}) - $${o.price}\n`;
+            txt += `${count}. ${o.name}: ${o.drink} (${o.spec})\n`;
+
+            // 統計匯總邏輯
+            const key = `${o.drink}\n(${o.spec})`;
+            aggregation[key] = (aggregation[key] || 0) + 1;
         });
+
+        // 渲染匯總
+        if (count > 0) {
+            Object.keys(aggregation).sort().forEach(itemKey => {
+                aggDiv.innerHTML += `
+                    <div class="agg-item">
+                        <div class="agg-name">${itemKey}</div>
+                        <div class="agg-count">${aggregation[itemKey]}</div>
+                    </div>`;
+            });
+        } else {
+            aggDiv.innerHTML = '<p style="color: #999; text-align: center; margin-top: 20px;">尚無訂單 No orders.</p>';
+        }
+
         document.getElementById('totalPrice').innerText = total;
-        document.getElementById('count').innerText = `(${count}杯 Cups)`;
-        document.getElementById('summaryOutput').innerText = count > 0 ? txt + `\n總計 Total: ${count}杯 / $${total}` : "目前無訂單資料 No orders.";
+        document.getElementById('count').innerText = `(${count}杯)`;
+        document.getElementById('summaryOutput').innerText = count > 0 ? txt + `\n總計: ${count}杯 / $${total}` : "目前無訂單資料";
     });
 
     window.copySummary = () => {
         navigator.clipboard.writeText(document.getElementById('summaryOutput').innerText);
-        alert("已複製統計文字至剪貼簿！ Copied to clipboard!");
+        alert("統計文字已複製！已可貼到 LINE 分享。");
     };
 </script>
 </body>

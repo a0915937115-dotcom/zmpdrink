@@ -14,84 +14,62 @@
     </script>
     <style>
         :root {
-            --primary: #4ecdc4; /* 薄荷綠 */
-            --secondary: #ff9f43; /* 暖陽橘 */
-            --accent: #6c5ce7; /* 統計紫 */
-            --bg: #f7f9fc;
-            --text: #2c3e50;
+            --primary-yellow: #fdd835; /* 參考打卡牆的亮黃色 */
+            --primary-blue: #0056b3;   /* 參考菜單看板的藍色 */
+            --bg: #f0f4f8;
+            --text: #333;
         }
         body { font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; background-color: var(--bg); margin: 0; padding: 15px; color: var(--text); }
-        h1 { text-align: center; color: var(--text); margin-bottom: 5px; }
-        .school-title { text-align: center; font-size: 1.1rem; color: #777; margin-bottom: 20px; letter-spacing: 1px; }
+        h1 { text-align: center; color: var(--primary-blue); margin-bottom: 5px; text-transform: uppercase; }
+        .school-title { text-align: center; font-size: 1.1rem; color: #666; margin-bottom: 20px; font-weight: bold; }
         
-        /* 佈局設計：三欄 */
-        .container { 
-            width: 100%; 
-            max-width: 1250px; 
-            display: grid; 
-            grid-template-columns: 1fr 1fr 1fr; 
-            gap: 15px; 
-            margin: 0 auto; 
-        }
+        .container { width: 100%; max-width: 1250px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin: 0 auto; }
+        @media (max-width: 1150px) { .container { grid-template-columns: 1fr; } }
         
-        @media (max-width: 1150px) {
-            .container { grid-template-columns: 1fr; }
-        }
+        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); border-top: 8px solid var(--primary-yellow); position: relative; }
+        .card.order-summary { border-top-color: var(--primary-blue); }
+        .card.agg-summary { border-top-color: #2ecc71; }
         
-        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #eee; position: relative; overflow: hidden; display: flex; flex-direction: column; }
-        .card::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: var(--primary); }
-        .card.order-summary::before { background: var(--secondary); }
-        .card.agg-summary::before { background: var(--accent); }
+        h2 { font-size: 1.3rem; margin-top: 0; display: flex; align-items: center; gap: 8px; color: var(--primary-blue); border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        label { display: block; margin: 15px 0 5px; font-weight: bold; font-size: 0.95rem; }
         
-        h2 { font-size: 1.25rem; margin-top: 0; display: flex; align-items: center; gap: 8px; color: #444; }
-        label { display: block; margin: 12px 0 5px; font-weight: 600; color: #555; font-size: 0.9rem; }
+        select, input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; box-sizing: border-box; }
+        select:focus { border-color: var(--primary-blue); outline: none; }
         
-        select, input { width: 100%; padding: 12px; border: 2px solid #edf2f7; border-radius: 12px; font-size: 15px; transition: all 0.3s; box-sizing: border-box; }
-        select:focus, input:focus { border-color: var(--primary); outline: none; }
+        .size-group { display: flex; gap: 10px; margin-top: 10px; }
+        .size-btn { flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 10px; background: white; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .size-btn.active { background: var(--primary-blue); color: white; border-color: var(--primary-blue); }
+
+        .btn-add { background: var(--primary-yellow); color: #000; border: none; width: 100%; padding: 16px; border-radius: 12px; font-size: 1.2rem; cursor: pointer; font-weight: bold; margin-top: 25px; box-shadow: 0 4px 0 #d4b400; }
+        .btn-add:active { transform: translateY(2px); box-shadow: none; }
         
-        .btn-add { background: var(--primary); color: white; border: none; width: 100%; padding: 15px; border-radius: 12px; font-size: 1.1rem; cursor: pointer; font-weight: bold; margin-top: 20px; transition: 0.2s; }
-        .btn-add:hover { opacity: 0.9; transform: translateY(-2px); }
+        .list-container { flex-grow: 1; overflow-y: auto; max-height: 450px; margin-top: 10px; }
+        .order-item { background: #f9f9f9; border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--primary-blue); }
+        .agg-item { background: #eef9f2; border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; border-left: 5px solid #2ecc71; }
+        .count-badge { background: #2ecc71; color: white; padding: 2px 12px; border-radius: 15px; font-weight: bold; }
         
-        /* 清單列表樣式 */
-        .list-container { flex-grow: 1; overflow-y: auto; max-height: 500px; padding-right: 5px; margin-top: 10px; }
-        
-        /* 個人明細項目 */
-        .order-item { background: #fafafa; border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--secondary); font-size: 0.9rem; }
-        .order-info b { color: var(--text); font-size: 1rem; }
-        .order-info small { color: #888; display: block; margin-top: 2px; line-height: 1.3; }
-        
-        /* 匯總項目 */
-        .agg-item { background: #f8f7ff; border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--accent); border-bottom: 1px solid #eee; }
-        .agg-name { font-size: 0.9rem; font-weight: 500; color: #444; flex: 1; padding-right: 10px; }
-        .agg-count { background: var(--accent); color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; min-width: 40px; text-align: center; }
-        
-        .delete-btn { background: #fff5f5; color: #ff5e5e; border: 1px solid #ff5e5e; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 0.8rem; }
-        .delete-btn:hover { background: #ff5e5e; color: white; }
-        
-        .summary-box { background: #fffcf8; padding: 15px; border-radius: 12px; border: 1px dashed var(--secondary); margin: 15px 0; font-size: 0.85rem; white-space: pre-wrap; color: #666; }
-        
-        .footer-total { margin-top: auto; padding-top: 15px; border-top: 1px solid #eee; text-align: right; }
+        .delete-btn { background: #fff1f1; color: #e74c3c; border: 1px solid #e74c3c; border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 0.8rem; }
+        .summary-box { background: #fffbe6; padding: 15px; border-radius: 12px; border: 1px dashed #ffe58f; margin: 15px 0; font-size: 0.9rem; white-space: pre-wrap; }
         .status-dot { width: 10px; height: 10px; background: #2ecc71; border-radius: 50%; display: inline-block; margin-right: 5px; }
     </style>
 </head>
 <body>
 
 <h1>🏫 昭明國小-VIP點餐系統</h1>
-<div class="school-title">Zhaoming Elementary School - VIP Ordering</div>
+<div class="school-title">ZHAOMING ELEMENTARY SCHOOL - VIP ORDERING</div>
 <div style="text-align: center; font-size: 12px; color: #999; margin-bottom: 15px;">
-    <span class="status-dot"></span><span id="status">正在同步雲端... Syncing...</span>
+    <span class="status-dot"></span><span id="status">同步中... Syncing...</span>
 </div>
 
 <div class="container">
     <div class="card">
-        <h2>✏️ 填寫 Order Form</h2>
-        <label>點餐人姓名 Name</label>
-        <input type="text" id="name" placeholder="請輸入姓名">
+        <h2>✏️ 填寫點單 Order</h2>
+        <label>姓名 Name</label>
+        <input type="text" id="name" placeholder="請輸入點餐人姓名">
 
-        <label>飲品系列 Series</label>
+        <label>系列 Category</label>
         <select id="category" onchange="updateDrinks()">
-            <option value="">-- 請選擇系列 Select Series --</option>
-            <option value="recommend">⭐ 店長推薦 Top Picks</option>
+            <option value="">-- 請選擇系列 --</option>
             <option value="tea">🍃 找好茶 Classic Tea</option>
             <option value="milkTea">🧋 找奶茶 Milk Tea</option>
             <option value="fresh">🍋 找新鮮 Juice & Fruit</option>
@@ -100,42 +78,34 @@
         </select>
 
         <label>飲品名稱 Drink</label>
-        <select id="drinkSelect"><option value="">請先選擇系列 Select Series First</option></select>
+        <select id="drinkSelect" onchange="updatePrice()"><option value="">請先選擇系列</option></select>
 
-        <div style="display: flex; gap: 10px;">
-            <div style="flex: 1;">
-                <label>甜度 Sugar</label>
-                <select id="sugar">
-                    <option>無糖 0% Sugar</option><option>微糖 30% Sugar</option><option>半糖 50% Sugar</option><option>少糖 70% Sugar</option><option>正常糖 100% Sugar</option>
-                </select>
-            </div>
-            <div style="flex: 1;">
-                <label>冰塊 Ice</label>
-                <select id="ice">
-                    <option>去冰 No Ice</option><option>微冰 Low Ice</option><option>少冰 Less Ice</option><option>正常冰 Normal Ice</option><option>常溫 Room Temp</option><option>熱 Hot</option>
-                </select>
-            </div>
+        <label>規格 Size</label>
+        <div class="size-group">
+            <button class="size-btn active" id="btnM" onclick="setSize('M')">中杯 (M)</button>
+            <button class="size-btn" id="btnL" onclick="setSize('L')">大杯 (L)</button>
         </div>
 
-        <button class="btn-add" id="submitBtn">送出訂單 Submit Order</button>
+        <div style="display: flex; gap: 10px;">
+            <div style="flex: 1;"><label>甜度 Sugar</label><select id="sugar"><option>無糖 0%</option><option>微糖 30%</option><option>半糖 50%</option><option>少糖 70%</option><option>正常 100%</option></select></div>
+            <div style="flex: 1;"><label>冰塊 Ice</label><select id="ice"><option>去冰 No</option><option>微冰 Low</option><option>少冰 Less</option><option>正常 Normal</option><option>常溫 Room</option><option>熱 Hot</option></select></div>
+        </div>
+
+        <button class="btn-add" id="submitBtn">送出訂單 ($<span id="displayPrice">0</span>)</button>
     </div>
 
     <div class="card order-summary">
-        <h2>📋 個人明細 Details <span id="count" style="font-size: 14px; color: var(--secondary); margin-left: 8px;">(0杯)</span></h2>
+        <h2>📋 個人明細 Details <span id="count" style="font-size: 14px; margin-left: 8px;">(0杯)</span></h2>
         <div class="list-container" id="orderList"></div>
-        
-        <div class="summary-box" id="summaryOutput">目前尚無點餐資料 No orders.</div>
-        <button style="width:100%; padding:12px; background: var(--secondary); color:white; border:none; border-radius:10px; cursor:pointer; font-weight:bold;" onclick="copySummary()">複製 LINE 統計 Copy</button>
+        <div class="summary-box" id="summaryOutput">目前尚無點餐資料</div>
+        <button style="width:100%; padding:12px; background: var(--primary-blue); color:white; border:none; border-radius:10px; cursor:pointer; font-weight:bold;" onclick="copySummary()">複製 LINE 統計格式</button>
     </div>
 
     <div class="card agg-summary">
-        <h2>📊 品項匯總 Summary</h2>
-        <div class="list-container" id="aggList">
-            <p style="color: #999; font-size: 0.9rem; text-align: center; margin-top: 20px;">等待訂單匯總中...</p>
-        </div>
-        
-        <div class="footer-total">
-            <h3 style="margin: 0; color: #444;">總金額 Total: <span style="color:var(--accent); font-size: 1.6rem;">$<span id="totalPrice">0</span></span></h3>
+        <h2>📊 品項統計 Summary</h2>
+        <div class="list-container" id="aggList"><p style="color: #999; text-align: center; margin-top: 20px;">等待訂單中...</p></div>
+        <div style="margin-top: auto; padding-top: 15px; border-top: 2px solid #eee; text-align: right;">
+            <h3 style="margin: 0;">總計: <span style="color:var(--primary-blue); font-size: 1.8rem;">$<span id="totalPrice">0</span></span></h3>
         </div>
     </div>
 </div>
@@ -144,7 +114,6 @@
     import { initializeApp } from "firebase/app";
     import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc } from "firebase/firestore";
 
-    // 沿用你的 Firebase 配置
     const firebaseConfig = {
       apiKey: "AIzaSyC5hY6aKGzpwD4Cp8fafE4hUwvC7KEvWFc",
       authDomain: "drin-296d7.firebaseapp.com",
@@ -158,44 +127,40 @@
     const db = getFirestore(app);
     const ordersRef = collection(db, "orders_list");
 
+    let currentSize = 'M';
     const menu = {
-        recommend: [
-            {n:"麵茶紅茶拿鐵 Flour Tea Black Tea Latte", p:75}, 
-            {n:"四季春珍波椰 4 Seasons Tea w/Pearls", p:45}, 
-            {n:"芒果青 Mango Green Tea", p:55}, 
-            {n:"荔枝烏龍 Lychee Oolong Tea", p:55}, 
-            {n:"重焙烏龍拿鐵 Roasted Oolong Latte", p:65}
-        ],
         tea: [
-            {n:"茉莉綠茶 Jasmine Green Tea", p:30}, 
-            {n:"阿薩姆紅茶 Assam Black Tea", p:30}, 
-            {n:"四季春青茶 4 Seasons Tea", p:30}, 
-            {n:"黃金烏龍 Golden Oolong Tea", p:30}, 
-            {n:"檸檬綠茶 Lemon Green Tea", p:55}, 
-            {n:"鮮柚綠 Grapefruit Green Tea", p:65}
+            {n:"茉莉綠茶 Jasmine Green", m:25, l:30}, {n:"阿薩姆紅茶 Assam Black", m:25, l:30}, {n:"四季春青茶 4 Seasons", m:25, l:30}, 
+            {n:"黃金烏龍 Golden Oolong", m:25, l:30}, {n:"1號(四季春珍波椰) #1 Special", m:35, l:45}, {n:"波霸綠/紅 Bubble Green/Black", m:35, l:45},
+            {n:"微檸檬紅/青 Lemon Tea", m:35, l:45}, {n:"檸檬綠/青 Lemon Green", m:40, l:55}, {n:"梅の綠 Plum Green", m:40, l:55},
+            {n:"8冰綠 No.8 Green Tea", m:40, l:55}, {n:"多多綠 Yakult Green", m:40, l:55}, {n:"旺來紅 Pineapple Black", m:40, l:55},
+            {n:"柚子紅 Grapefruit Black", m:40, l:55}, {n:"鮮柚綠 Grapefruit Green", m:50, l:65}
         ],
         milkTea: [
-            {n:"奶綠 Green Milk Tea", p:55}, 
-            {n:"奶茶 Milk Tea", p:55}, 
-            {n:"波霸奶茶 Bubble Milk Tea", p:55}, 
-            {n:"麵茶奶茶 Flour Milk Tea", p:65}
+            {n:"奶茶 Milk Tea", m:40, l:55}, {n:"奶綠 Green Milk Tea", m:40, l:55}, {n:"烏龍奶 Oolong Milk Tea", m:40, l:55},
+            {n:"珍珠奶茶 Pearl Milk Tea", m:40, l:55}, {n:"波霸奶茶 Bubble Milk Tea", m:40, l:55}, {n:"燕麥奶茶 Oatmeal Milk Tea", m:40, l:55},
+            {n:"椰果奶茶 Coconut Milk Tea", m:40, l:55}, {n:"阿華田 Ovaltine", m:40, l:55}
         ],
         fresh: [
-            {n:"檸檬汁 Lemon Juice", p:65}, 
-            {n:"金桔檸檬 Kumquat Lemon", p:65}, 
-            {n:"檸檬多多 Lemon Yakult", p:75}, 
-            {n:"8冰茶 No.8 Iced Tea", p:55}
+            {n:"8冰茶 No.8 Iced Tea", m:40, l:55}, {n:"柚子茶 Grapefruit Tea", m:40, l:55}, {n:"檸檬汁 Lemon Juice", m:50, l:65},
+            {n:"葡萄柚汁 Grapefruit Juice", m:50, l:65}, {n:"金桔檸檬 Kumquat Lemon", m:50, l:65}, {n:"檸檬梅汁 Lemon Plum", m:50, l:65},
+            {n:"檸檬多多 Lemon Yakult", m:55, l:75}, {n:"葡萄柚多多 Grapefruit Yakult", m:55, l:75}
         ],
         latte: [
-            {n:"紅茶拿鐵 Black Tea Latte", p:65}, 
-            {n:"波霸紅茶拿鐵 Bubble Black Tea Latte", p:65}, 
-            {n:"燕麥鮮奶 Oatmeal Fresh Milk", p:75}
+            {n:"紅茶拿鐵 Black Tea Latte", m:50, l:65}, {n:"珍珠紅茶拿鐵 Pearl Latte", m:50, l:65}, {n:"波霸紅茶拿鐵 Bubble Latte", m:50, l:65},
+            {n:"燕麥紅茶拿鐵 Oatmeal Latte", m:50, l:65}, {n:"阿華田拿鐵 Ovaltine Latte", m:50, l:65}
         ],
         iceCream: [
-            {n:"冰淇淋綠茶 Ice Cream Green Tea", p:55}, 
-            {n:"冰淇淋奶茶 Ice Cream Milk Tea", p:65}, 
-            {n:"冰淇淋鮮奶 Ice Cream Fresh Milk", p:85}
+            {n:"冰淇淋紅茶 Ice Cream Black Tea", m:40, l:55}, {n:"芒果青 Mango Green Tea", m:40, l:55}, {n:"荔枝烏龍 Lychee Oolong", m:40, l:55},
+            {n:"冰淇淋奶茶 Ice Cream Milk Tea", m:50, l:65}, {n:"冰淇淋紅茶拿鐵 Ice Cream Latte", m:55, l:75}
         ]
+    };
+
+    window.setSize = (s) => {
+        currentSize = s;
+        document.getElementById('btnM').className = s === 'M' ? 'size-btn active' : 'size-btn';
+        document.getElementById('btnL').className = s === 'L' ? 'size-btn active' : 'size-btn';
+        updatePrice();
     };
 
     window.updateDrinks = () => {
@@ -203,89 +168,75 @@
         const drinkSelect = document.getElementById('drinkSelect');
         drinkSelect.innerHTML = '<option value="">-- 請選擇飲品 --</option>';
         if (cat && menu[cat]) {
-            menu[cat].forEach(item => {
+            menu[cat].forEach((item, index) => {
                 let opt = document.createElement('option');
-                opt.value = item.p;
-                opt.textContent = `${item.n} ($${item.p})`;
+                opt.value = index;
+                opt.textContent = item.n;
                 drinkSelect.appendChild(opt);
             });
         }
+        updatePrice();
     };
 
-    window.deleteItem = async (id, name) => {
-        if (confirm(`確定要刪除 ${name} 的訂單嗎？`)) {
-            await deleteDoc(doc(db, "orders_list", id));
+    window.updatePrice = () => {
+        const cat = document.getElementById('category').value;
+        const idx = document.getElementById('drinkSelect').value;
+        const priceSpan = document.getElementById('displayPrice');
+        if (cat && idx !== "") {
+            const price = currentSize === 'M' ? menu[cat][idx].m : menu[cat][idx].l;
+            priceSpan.innerText = price;
+        } else {
+            priceSpan.innerText = "0";
         }
     };
 
     document.getElementById('submitBtn').onclick = async () => {
         const name = document.getElementById('name').value;
-        const drinkNode = document.getElementById('drinkSelect');
-        if (!name || drinkNode.value === "") return alert("請輸入姓名與飲品！");
+        const cat = document.getElementById('category').value;
+        const idx = document.getElementById('drinkSelect').value;
+        if (!name || idx === "") return alert("請輸入姓名並選擇飲品！");
+        
+        const item = menu[cat][idx];
+        const price = currentSize === 'M' ? item.m : item.l;
         
         await addDoc(ordersRef, {
             name: name,
-            drink: drinkNode.options[drinkNode.selectedIndex].text.split(' ($')[0],
-            spec: `${document.getElementById('sugar').value} / ${document.getElementById('ice').value}`,
-            price: parseInt(drinkNode.value),
+            drink: item.n,
+            spec: `${currentSize} / ${document.getElementById('sugar').value} / ${document.getElementById('ice').value}`,
+            price: price,
             createdAt: new Date()
         });
         document.getElementById('name').value = "";
     };
 
     onSnapshot(query(ordersRef, orderBy("createdAt", "asc")), (snap) => {
-        document.getElementById('status').innerText = "🟢 雲端同步中 Connected";
         const listDiv = document.getElementById('orderList');
         const aggDiv = document.getElementById('aggList');
-        listDiv.innerHTML = '';
-        aggDiv.innerHTML = '';
-        
-        let total = 0, count = 0, txt = "【昭明國小 VIP 訂單統計】\n";
-        let aggregation = {}; 
+        listDiv.innerHTML = ''; aggDiv.innerHTML = '';
+        let total = 0, count = 0, txt = "【昭明國小 VIP 訂單】\n", agg = {};
 
-        snap.forEach(docSnap => {
-            const o = docSnap.data();
-            const id = docSnap.id;
+        snap.forEach(d => {
+            const o = d.data(); const id = d.id;
             total += o.price; count++;
-            
-            // 渲染明細
-            listDiv.innerHTML += `
-                <div class="order-item">
-                    <div class="order-info"><b>${o.name}</b><small>${o.drink}</small><small>${o.spec}</small></div>
-                    <div style="text-align:right">
-                        <div style="font-weight:bold; color:var(--secondary); margin-bottom:5px;">$${o.price}</div>
-                        <button class="delete-btn" onclick="deleteItem('${id}', '${o.name}')">刪除</button>
-                    </div>
-                </div>`;
-            txt += `${count}. ${o.name}: ${o.drink} (${o.spec})\n`;
-
-            // 統計匯總邏輯
-            const key = `${o.drink}\n(${o.spec})`;
-            aggregation[key] = (aggregation[key] || 0) + 1;
+            listDiv.innerHTML += `<div class="order-item"><div><b>${o.name}</b><br><small>${o.drink}</small><br><small>${o.spec}</small></div><div style="text-align:right"><b>$${o.price}</b><br><button class="delete-btn" onclick="deleteItem('${id}','${o.name}')">刪除</button></div></div>`;
+            txt += `${count}. ${o.name}: ${o.drink} (${o.spec}) $${o.price}\n`;
+            const key = `${o.drink} [${o.spec.split(' / ')[0]}]\n(${o.spec.split(' / ').slice(1).join(' / ')})`;
+            agg[key] = (agg[key] || 0) + 1;
         });
 
-        // 渲染匯總
         if (count > 0) {
-            Object.keys(aggregation).sort().forEach(itemKey => {
-                aggDiv.innerHTML += `
-                    <div class="agg-item">
-                        <div class="agg-name">${itemKey}</div>
-                        <div class="agg-count">${aggregation[itemKey]}</div>
-                    </div>`;
+            Object.keys(agg).forEach(k => {
+                aggDiv.innerHTML += `<div class="agg-item"><span>${k}</span><span class="count-badge">${agg[k]} 杯</span></div>`;
             });
-        } else {
-            aggDiv.innerHTML = '<p style="color: #999; text-align: center; margin-top: 20px;">尚無訂單 No orders.</p>';
-        }
+        } else { aggDiv.innerHTML = '<p style="text-align:center; color:#999; margin-top:20px;">尚無訂單</p>'; }
 
         document.getElementById('totalPrice').innerText = total;
         document.getElementById('count').innerText = `(${count}杯)`;
         document.getElementById('summaryOutput').innerText = count > 0 ? txt + `\n總計: ${count}杯 / $${total}` : "目前無訂單資料";
     });
 
-    window.copySummary = () => {
-        navigator.clipboard.writeText(document.getElementById('summaryOutput').innerText);
-        alert("統計文字已複製！已可貼到 LINE 分享。");
-    };
+    window.deleteItem = async (id, name) => { if (confirm(`確定刪除 ${name} 的訂單？`)) await deleteDoc(doc(db, "orders_list", id)); };
+    window.copySummary = () => { navigator.clipboard.writeText(document.getElementById('summaryOutput').innerText); alert("統計文字已複製！"); };
 </script>
 </body>
 </html>
